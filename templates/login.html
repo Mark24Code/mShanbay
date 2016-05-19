@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block css %}
+<style type="text/css">
+
+</style>
+{% endblock %}
+
+{% block content %}
+
+{% endblock %}
+
+{% block js %}
+
+<script type="text/javascript">
+{#$label = $('.xui-login .label.xa-login_msg');#}
+{#//注册#}
+{#$('.xa-register').click(function() {#}
+{#    var username = $('#in_username').val();#}
+{#    var password = $('#in_password').val();#}
+{#    $.ajax({#}
+{#        url:'/login/',#}
+{#        type:'post',#}
+{#        data:{#}
+{#            '_method':'put',#}
+{#            'username':username,#}
+{#            'password':password#}
+{#        },#}
+{#        success:function(resp){#}
+{#            console.log(resp);#}
+{#            if(resp.code==200){#}
+{#                console.log('创建账户成功！');#}
+{#                var data = resp.data;#}
+{#                // if(data.url){#}
+{#                //     window.location.href=data.url;#}
+{#                // }#}
+{#                $label.html('创建账户成功！请登录').addClass('label-success').removeClass('xui-hide');#}
+{#            }else{#}
+{#                console.log('创建账户失败！');#}
+{#                $label.html('创建账户失败！').addClass('label-danger').removeClass('xui-hide');#}
+{#            }#}
+{#        },#}
+{#        error:function(resp){#}
+{#            console.log('连接服务器失败，请重试！');#}
+{#            $label.html('连接服务器失败，请重试！').addClass('label-danger').removeClass('xui-hide');#}
+{#        }#}
+{#    });#}
+{#{);#}
+{##}
+{#//登录#}
+{#$('.xa-login').click(function() {#}
+{#    var username = $('#in_username').val();#}
+{#    var password = $('#in_password').val();#}
+{#    $.ajax({#}
+{#        url:'/login/',#}
+{#        type:'post',#}
+{#        data:{#}
+{#            '_method':"post",#}
+{#            'username':username,#}
+{#            'password':password#}
+{#        },#}
+{#        success:function(resp){#}
+{#           if(resp.code==200){#}
+{#                console.log('验证成功！');#}
+{#                $label.html('验证成功！').addClass('label-success').removeClass('xui-hide');#}
+{#                var data = resp.data;#}
+{#                if(data.url){#}
+{#                    window.location.href=data.url;#}
+{#                }#}
+{#            }else{#}
+{#                console.log('创建账户失败！');#}
+{#                $label.html('创建账户失败！').addClass('label-danger').removeClass('xui-hide');#}
+{#            }#}
+{#        },#}
+{#        error:function(resp){#}
+{#            console.log('连接服务器失败，请重试！');#}
+{#            $label.html('连接服务器失败，请重试！').addClass('label-danger').removeClass('xui-hide');#}
+{##}
+{#        }#}
+{#    });#}
+{#});#}
+
+</script>
+
+{% endblock %}

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang='zh-CN'>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1"> {% block meta %}{% endblock %}
+    <title>{% block title %}mShanbay{% endblock %}</title>
+    <!-- start css  -->
+    <link type="text/css" rel="stylesheet" href="/static/bootstrap/css/bootstrap.min.css">
+    <link type="text/css" rel="stylesheet" href="/static/bootstrap/css/bootstrap-theme.min.css">
+    <link type="text/css" rel="stylesheet" href="/static/awesome-font/css/font-awesome.min.css">
+    <link type="text/css" rel="stylesheet" href="/static/css/base.css">
+    <link type="text/css" rel="stylesheet" href="/static/css/content_base.css">
+    <style type="text/css">
+        .xui-hide{
+            display: none;
+        }
+    </style>
+    {% block css %}{% endblock %}
+    <!-- end   css  -->
+</head>
+
+<body>
+    {% block content %}{% endblock %}
+    <!-- start js  -->
+    <script type="text/javascript" src="/static/jquery/jquery-2.2.3.min.js"></script>
+    <script type="text/javascript" src="/static/underscore/underscore.js"></script>
+    <script type="text/javascript" src="/static/bootstrap/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="/static/handlebars/handlebars-v4.0.5.js"></script>
+    <script type="text/javascript" src="/static/js/core.js"></script>
+    <script type="text/javascript" src="/static/js/util.js"></script>
+    {% block js %}{% endblock %}
+    <!-- end   js  -->
+</body>
+
+</html>
