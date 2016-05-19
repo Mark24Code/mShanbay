@@ -1,85 +1,81 @@
-{% extends "base.html" %}
-
-{% block css %}
+{% extends "base.html" %} {% block css %}
 <style type="text/css">
+body {
+    background-color: #24D79D;
+    color:#fff;
+}
+.xui-logo_box{
+    height: 200px;
+    width: 200px;
+    margin:0 auto;
+    text-align: center;
+}
+.xui-content{
+    margin:0 10%;
+}
+
+.xui-username,.xui-password{
+    border-bottom: solid 2px #fff;
+    margin:10px 0 20px 20px;
+}
+.xui-in_username,.xui-in_password{
+    background: #24D79D;
+    border: 0px;
+}
+
+.xui-btn_login{
+    height: 4rem;
+    background-color: #fff;
+    color: #24D79D;
+    border:0px;
+}
 
 </style>
-{% endblock %}
-
-{% block content %}
-
-{% endblock %}
-
-{% block js %}
-
+{% endblock %} {% block content %}
+<div class="container-fluid">
+    <div class="row xui-logo">
+        <div class="xui-logo_box">
+            <img src="" alt="mShanbay">
+        </div>
+    </div>
+    <div class="row xui-content">
+        <form class="form-horizontal">
+            <div class="form-group xui-username">
+                <label for="username" class="col-xs-3 control-label xui-label_username">
+                    <span class="glyphicon glyphicon-user" aria-hidden="true"></span>用户名
+                </label>
+                <div class="col-xs-9">
+                    <input type="text" class="xui-in_username" id="username">
+                </div>
+            </div>
+            <div class="form-group xui-password">
+                <label for="password" class="col-xs-3 control-label xui-label_password">
+                    <span class="glyphicon glyphicon-lock" aria-hidden="true"></span>密码
+                </label>
+                <div class="col-xs-9">
+                    <input type="password" class="xui-in_password" id="password">
+                </div>
+            </div>
+            <div class="form-group">
+                <input type="button" class="col-xs-12 xui-btn_login xa-btn_login" value="登录"></button>
+            </div>
+            <div class="form-group">
+                <div class="col-xs-12">
+                    <div class="checkbox">
+                        <label>
+                            <input type="checkbox">记住我
+                        </label>
+                    </div>
+                    <div class="xui-join xa-join">
+                        没有账号？先<a href="/join/">注册</a>吧
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %} {% block js %}
 <script type="text/javascript">
-{#$label = $('.xui-login .label.xa-login_msg');#}
-{#//注册#}
-{#$('.xa-register').click(function() {#}
-{#    var username = $('#in_username').val();#}
-{#    var password = $('#in_password').val();#}
-{#    $.ajax({#}
-{#        url:'/login/',#}
-{#        type:'post',#}
-{#        data:{#}
-{#            '_method':'put',#}
-{#            'username':username,#}
-{#            'password':password#}
-{#        },#}
-{#        success:function(resp){#}
-{#            console.log(resp);#}
-{#            if(resp.code==200){#}
-{#                console.log('创建账户成功！');#}
-{#                var data = resp.data;#}
-{#                // if(data.url){#}
-{#                //     window.location.href=data.url;#}
-{#                // }#}
-{#                $label.html('创建账户成功！请登录').addClass('label-success').removeClass('xui-hide');#}
-{#            }else{#}
-{#                console.log('创建账户失败！');#}
-{#                $label.html('创建账户失败！').addClass('label-danger').removeClass('xui-hide');#}
-{#            }#}
-{#        },#}
-{#        error:function(resp){#}
-{#            console.log('连接服务器失败，请重试！');#}
-{#            $label.html('连接服务器失败，请重试！').addClass('label-danger').removeClass('xui-hide');#}
-{#        }#}
-{#    });#}
-{#{);#}
-{##}
-{#//登录#}
-{#$('.xa-login').click(function() {#}
-{#    var username = $('#in_username').val();#}
-{#    var password = $('#in_password').val();#}
-{#    $.ajax({#}
-{#        url:'/login/',#}
-{#        type:'post',#}
-{#        data:{#}
-{#            '_method':"post",#}
-{#            'username':username,#}
-{#            'password':password#}
-{#        },#}
-{#        success:function(resp){#}
-{#           if(resp.code==200){#}
-{#                console.log('验证成功！');#}
-{#                $label.html('验证成功！').addClass('label-success').removeClass('xui-hide');#}
-{#                var data = resp.data;#}
-{#                if(data.url){#}
-{#                    window.location.href=data.url;#}
-{#                }#}
-{#            }else{#}
-{#                console.log('创建账户失败！');#}
-{#                $label.html('创建账户失败！').addClass('label-danger').removeClass('xui-hide');#}
-{#            }#}
-{#        },#}
-{#        error:function(resp){#}
-{#            console.log('连接服务器失败，请重试！');#}
-{#            $label.html('连接服务器失败，请重试！').addClass('label-danger').removeClass('xui-hide');#}
-{##}
-{#        }#}
-{#    });#}
-{#});#}
 
 </script>
-
 {% endblock %}
