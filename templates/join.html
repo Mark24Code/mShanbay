@@ -1,13 +1,92 @@
 {% extends "base.html" %}
-
 {% block css %}
-<style type="text/css">
-
-</style>
+    <link rel="stylesheet" href="/static/css/login.css">
 {% endblock %}
 
 {% block content %}
+<div class="container-fluid">
+    <div class="row xui-logo">
+        <div class="xui-logo_box">
+            <img src="" alt="mShanbay">
+        </div>
+        <p>欢迎新用户</p>
+    </div>
+    <div class="row xui-content">
+        <form class="form-horizontal">
+            <div class="form-group xui-username">
+                <label for="username" class="col-xs-3 control-label xui-label_username">
+                    <span class="glyphicon glyphicon-user" aria-hidden="true"></span> 用户名
+                </label>
+                <div class="col-xs-9">
+                    <input type="text" class="xui-in_username" id="username">
+                </div>
+            </div>
+            <div class="form-group xui-email">
+                <label for="email" class="col-xs-3 control-label xui-label_email">
+                    <span class="glyphicon glyphicon-envelope" aria-hidden="true"></span> 邮箱
+                </label>
+                <div class="col-xs-9">
+                    <input type="email" class="xui-in_email" id="email">
+                </div>
+            </div>
+            <div class="form-group xui-password">
+                <label for="password" class="col-xs-3 control-label xui-label_password">
+                    <span class="glyphicon glyphicon-lock" aria-hidden="true"></span> 密码
+                </label>
+                <div class="col-xs-9">
+                    <input type="password" class="xui-in_password" id="password">
+                </div>
+            </div>
+            <div class="form-group">
+                <input type="button" class="col-xs-12 xui-btn_join xa-btn_join" value="注册">
+            </div>
+            <div class="alert xui-msg xui-hide xa-msg" role="alert"></div>
+        </form>
+    </div>
+</div>
+{% endblock %} {% block js %}
+<script type="text/javascript">
 
+$(document).ready(function(){
+    //注册
+    $('.xa-btn_join').click(function() {
+        var username = $('#username').val();
+        var email = $('#email').val();
+        var password = $('#password').val();
+        $.ajax({
+            url:'/join/',
+            type:'post',
+            data:{
+                '_method':'put',
+                'username':username,
+                'email':email,
+                'password':password
+            },
+            success:function(resp){
+                console.log(resp);
+                if(resp.code==200){
+                    console.log('创建账户成功！');
+                    var data = resp.data;
+                    // if(data.url){
+                    //     window.location.href=data.url;
+                    // }
+                    $('.xa-msg').html('创建账户成功！请登录').removeClass('alert-danger').addClass('alert-success').removeClass('xui-hide');
+                }else{
+                    console.log('创建账户失败！');
+                    $('.xa-msg').html('创建账户失败！').removeClass('alert-success').addClass('alert-danger').removeClass('xui-hide');
+                }
+            },
+            error:function(resp){
+                console.log('连接服务器失败，请重试！');
+                $('.xa-msg').html('连接服务器失败，请重试！').removeClass('alert-success').addClass('alert-danger').removeClass('xui-hide');
+            }
+        });
+    });
+
+
+
+
+});
+
+</script>
 {% endblock %}
-
-{% block js %}{% endblock %}
