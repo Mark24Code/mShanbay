@@ -1,13 +1,133 @@
 {% extends "content_base.html" %}
 {% block css %}
+    <link rel="stylesheet" href="/static/iosselect/iosSelect.css">
+    <style type="text/css">
+        .xui-intro,.xui-config,.xui-btn_group{
+            text-align: center;
+        }
+        .xui-word_book .xui-book_name,.xui-word_count .xui-count{
+            text-decoration:underline;
+        }
+        .xui-btn_start{
+            height: 4rem;
+            background-color: #fff;
+            color: #24D79D;
+            border:0px;
+        }
+    </style>
 {% endblock %}
 
 {% block content_base %}
- mobile index
+
+    <div class="xui-intro">
+        <div class="xui-welcome">待加入昵称</div>
+        <div><p>制定自己的单词计划吧！</p></div>
+    </div>
+    <div class="xui-btn_group">
+        <div class="col-xs-6 xui-book_box xa-book_box">
+            <input type="hidden" name="book_id" id="bookId" value="">
+            <span id="selectBook">选择单词书</span>
+        </div>
+
+        <div class="col-xs-6 xui-count_box xa-count_box">
+            <input type="hidden" name="count_id" id="countId" value="">
+            <span id="selectCount">选择每日个数</span>
+        </div>
+    </div>
+
+    <div class="xui-config">
+        <div class="xui-word_book">
+            我选择<span id="showBook" class="xui-book_name xa-book_name"> &nbsp; &nbsp; &nbsp; &nbsp;</span>单词书
+        </div>
+        <div class="xui-word_count">
+            每日背  <span id="showCount" class="xui-count xa-count"> &nbsp; &nbsp;</span> 个
+        </div>
+    </div>
+
+    <div class="form-group">
+        <input type="button" class="col-xs-12 xui-btn_start xa-btn_login" value="开始">
+    </div>
 {% endblock %}
 
 {% block js %}
-<script type="text/javascript">
+    <script src="/static/eatwords/select_data.js"></script>
+    <script src="/static/iosselect/iscroll.js"></script>
+    <script src="/static/iosselect/iosSelect.js"></script>
+    <script type="text/javascript">
+    $(document).ready(function(){
+        var bookIdDom = document.querySelector('#bookId');
+        var selectBookDom = document.querySelector('#selectBook');
+        var showBookDom = document.querySelector('#showBook');
+        selectBookDom.addEventListener('click', function () {
+            var bookId = selectBookDom.dataset['id'];
+            var bookName = selectBookDom.dataset['value'];
+            var bankSelect = new IosSelect(1,
+                [book_data],
+                {
+                    title: '单词书',
+                    itemHeight: 35,
+                    oneLevelId: bookId,
+                    callback: function (selectOneObj) {
+                        bookIdDom.value = selectOneObj.id;
+                        showBookDom.innerHTML = selectOneObj.value;
+                        selectBookDom.dataset['id'] = selectOneObj.id;
+                        selectBookDom.dataset['value'] = selectOneObj.value;
+                }
+            });
+        });
 
-</script>
+        var countIdDom = document.querySelector('#countId');
+        var selectCountDom = document.querySelector('#selectCount');
+        var showCountDom = document.querySelector('#showCount');
+        selectCountDom.addEventListener('click', function () {
+            var countId = selectCountDom.dataset['id'];
+            var countName = selectCountDom.dataset['value'];
+            var bankSelect = new IosSelect(1,
+                [count_data],
+                {
+                    title: '每日个数',
+                    itemHeight: 35,
+                    oneLevelId: countId,
+                    callback: function (selectOneObj) {
+                        countIdDom.value = selectOneObj.id;
+                        showCountDom.innerHTML = selectOneObj.value;
+                        selectCountDom.dataset['id'] = selectOneObj.id;
+                        selectCountDom.dataset['value'] = selectOneObj.value;
+                }
+            });
+        });
+
+
+        //开始
+        $('.xa-btn_login').click(function(){
+            var bookId = $('#bookId').val();
+            var countId = $('#countId').val();
+
+            $.ajax({
+                url:'/eating/',
+                type:'post',
+                data:{
+                    '_method':'put',
+                    'bookId':bookId,
+                    'countId':countId
+                },
+                success:function(resp){
+                    console.log('success callback');
+                    if(resp.code==200){
+                        console.log('配置成功！');
+                        var data = resp.data;
+                         if(data.url){
+                            window.location.href=data.url;
+                    }
+
+                }},
+                error:function(resp){
+                    console.log('error callback');
+
+                }
+            });
+        });
+
+    });
+    </script>
 {% endblock %}
