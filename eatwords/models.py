@@ -9,7 +9,7 @@ class EatwordsConfig(models.Model):
     progress = models.CharField(default="",max_length=100)#用户进度 {book:book_id,progress:progress_id}
     ok_id = models.CharField(default="",max_length=100)#用户完成书列表 [1,2,3]
     collect = models.TextField(blank = True, null = True)  # 收藏单词列表 [1,2,3]
-    db_ids = models.TextField(blank = True, null = True)#用户当前书单词ids集合(用于分析用户数据)
+    db_ids_groups = models.TextField(blank = True, null = True)#用户当前书单词ids集合分组
     created_at = models.DateTimeField(auto_now_add=True, null=True)#创建时间
 
     def __str__(self):

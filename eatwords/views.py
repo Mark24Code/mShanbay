@@ -1,5 +1,6 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, render_to_response
+import json
 
 from core import jsonresponse,get_trace
 from eatwords.models import EatwordsConfig,WordNote
@@ -16,6 +17,8 @@ def eating(request):
         user_id = str(request.user.id)
         bookId = request.POST.get('bookId','')
         countId = request.POST.get('countId','')
+        count = int(ID2COUNT[countId])
+        group = 0
         book_name = ID2BOOKNAME[bookId]
         book_type = BOOKNAME2TYPE[book_name]
 
@@ -24,13 +27,26 @@ def eating(request):
         try:
             words_data = Words.objects.filter(**filter_dict).order_by('id')
             db_words_ids = [str(word.id) for word in words_data]
-            db_ids = ",".join(db_words_ids)
+            len_db_words_ids = len(db_words_ids)
+            if len_db_words_ids % count==0:
+                group = len_db_words_ids//count
+            else:
+                group = len_db_words_ids//count+1
+            db_words_ids.reverse()
+            db_words_group = {}
+            for i in range(group):
+                group_one = db_words_ids[-count:]
+                group_one.reverse()
+                db_words_group[i] = group_one
+                db_words_ids = db_words_ids[:-count]
+
 
             EatwordsConfig.objects.create(
                 user_id=user_id,
                 book_id=bookId,
                 count_id=countId,
-                db_ids=db_ids
+                progress=json.dumps({'group_index':0,'index':0}),
+                db_ids_groups = json.dumps(db_words_group)
             )
         except:
             get_trace.print_trace()
@@ -44,26 +60,17 @@ def eating(request):
     elif request.GET.get('_method')=='get':
         #基础
         user_id = str(request.user.id)
-        print('pPPP')
-        print(user_id)
         user_config  = EatwordsConfig.objects.filter(user_id=user_id)[0]#这里要处理一下边界
-        print(user_config)
 
         count_id = user_config.count_id
         count = ID2COUNT[count_id]
-        progress = user_config.progress
+        progress = json.loads(user_config.progress)
 
         collect = user_config.collect
         collect_words_ids = collect.split(',') if collect else []
 
-        db_ids = user_config.db_ids
-        db_words_ids = db_ids.split(',') if db_ids else []
-        if progress:
-            index = int(db_words_ids.index(progress))
-        else:
-            index = 0
-        end = index+int(count)
-        today_words_ids = db_words_ids[index:end] if db_words_ids else []
+        db_ids_groups = json.loads(user_config.db_ids_groups)
+        today_words_ids = db_ids_groups[str(progress['group_index'])]
         cur_collect_words_ids = collect_words_ids and today_words_ids
         #Words DB Data
         id2words = {}
@@ -109,8 +116,6 @@ def eating(request):
             'items':items,
         }
         resp.data = data
-        print('>>>>')
-        print(items)
         return resp.get_response()
     else:
         return render_to_response('eating.html',{})

@@ -10,7 +10,6 @@
 
 {% block content_base %}
 背单词页面
-    <div id="test">FFFF</div>
     <div id="card_handlebars_container">xxxx</div>
 
 
@@ -35,8 +34,6 @@
             this.temple_id =temple_id;
             this.cards_data = [];
             this.card_data="";
-            this.next = 0;
-            this.prev = 0;
             this.index = 0;
         }
 
@@ -65,33 +62,37 @@
         }
 
         Cards.prototype.get_cur_card = function(){
-            this.next = this.index+1;
-            this.prev = this.index-1;
             this.card_data = this.cards_data[this.index];
-            console.log('cur_card>>>>>>');
-            console.log(this.index);
-            console.log(this.cards_data);
-            console.log(this.card_data);
             this.render(this.card_data,this.el_id,this.temple_id);
         }
 
         Cards.prototype.get_next_card = function(){
-            this.index += 1;
-            this.next = this.index+1;
-            this.prev = this.index-1;
-            this.card_data = this.cards_data[this.index];
-            this.render(this.card_data,this.el_id,this.temple_id);
+            if( this.index < this.cards_data.length-1){
+                console.log('HHHHH');
+                console.log(this.index);
+                console.log(this.cards_data);
+                this.index += 1;
+                console.log('after');
+                console.log(this.cards_data[this.index]);
+                this.card_data = this.cards_data[this.index];
+                this.render(this.card_data,this.el_id,this.temple_id);
+            }else {
+                this.index = this.cards_data.length -1;
+            }
         }
 
         Cards.prototype.get_prev_card = function(){
-            this.index -= 1;
-            this.next = this.index+1;
-            this.prev = this.index-1;
-            this.card_data = this.cards_data[this.index];
-            this.render(this.card_data,this.el_id,this.temple_id);
+            if( this.index > 0){
+                this.index -= 1;
+                this.card_data = this.cards_data[this.index];
+                this.render(this.card_data,this.el_id,this.temple_id);
+            }else {
+                this.index = 0;
+            }
         }
 
         Cards.prototype.render = function(card_data,el_id,temple_id) {
+            console.log('render.....');
             var temple = $('#'+temple_id).html();
             var compile_temple = Handlebars.compile(temple);
             var temple_html = compile_temple(card_data);
@@ -104,21 +105,24 @@
             cards = new Cards('card_handlebars_container','card-template');
             cards.init();
 
+
             // Card_Swipes
             $(function() {
                 //Keep track of how many swipes
                 var count=0;
 
                 //Enable swiping...
-                $("#card").swipe( {
+                $("#card_handlebars_container").swipe( {
                     //Single swipe handler for left swipes
                     swipeLeft:function(event, direction, distance, duration, fingerCount) {
+                        count += 1;
+                        console.log('左滑动'+count);
                         cards.get_next_card();
-                        $("#test").html('left'+count++);
                     },
                     swipeRight:function(event, direction, distance, duration, fingerCount) {
+                        count += 1;
+                        console.log('右滑动'+count);
                         cards.get_prev_card();
-                        $("#test").html('Right'+count++);
                     },
                     //Default is 75px, set to 0 for demo so any distance triggers swipe
                     threshold:0
