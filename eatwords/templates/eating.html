@@ -156,8 +156,6 @@
         function update_prograss(cards){
             $('.xa-index').html(parseInt(cards.index)+1);
             var percent = ""+((parseInt(cards.index)+1)/parseInt(cards.count)*100).toFixed(1)+"%";
-            console.log('>>>>');
-            console.log(percent);
             $('#progress-bar').css("width",percent);
         }
 

@@ -67,9 +67,9 @@ $(document).ready(function(){
                 if(resp.code==200){
                     console.log('创建账户成功！');
                     var data = resp.data;
-                    // if(data.url){
-                    //     window.location.href=data.url;
-                    // }
+                    if(data.url){
+                        window.location.href=data.url;
+                    }
                     $('.xa-msg').html('创建账户成功！请登录').removeClass('alert-danger').addClass('alert-success').removeClass('xui-hide');
                 }else{
                     console.log('创建账户失败！');

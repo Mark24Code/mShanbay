@@ -10,9 +10,20 @@
         }
         .xui-btn_start{
             height: 4rem;
+            width: 80%;
             background-color: #fff;
             color: #24D79D;
             border:0px;
+            margin:3rem 10%;
+        }
+        .xui-book_box,.xui-count_box{
+            color:#65665C;
+            background:#EFE7C6;
+            padding: 1rem;
+            margin:1rem;
+        }
+        .xui-config{
+            font-size: 3rem;
         }
     </style>
 {% endblock %}
@@ -20,22 +31,21 @@
 {% block content_base %}
 
     <div class="xui-intro">
-        <div class="xui-welcome">待加入昵称</div>
-        <div><p>制定自己的单词计划吧！</p></div>
+        <div><h3>制定自己的单词计划吧！</h3></div>
     </div>
     <div class="xui-btn_group">
-        <div class="col-xs-6 xui-book_box xa-book_box">
+        <div class="xui-book_box xa-book_box">
             <input type="hidden" name="book_id" id="bookId" value="">
             <span id="selectBook">选择单词书</span>
         </div>
 
-        <div class="col-xs-6 xui-count_box xa-count_box">
+        <div class="xui-count_box xa-count_box">
             <input type="hidden" name="count_id" id="countId" value="">
             <span id="selectCount">选择每日个数</span>
         </div>
     </div>
 
-    <div class="xui-config">
+    <div class="col-xs-12 xui-config">
         <div class="xui-word_book">
             我选择<span id="showBook" class="xui-book_name xa-book_name"> &nbsp; &nbsp; &nbsp; &nbsp;</span>单词书
         </div>
@@ -45,7 +55,7 @@
     </div>
 
     <div class="form-group">
-        <input type="button" class="col-xs-12 xui-btn_start xa-btn_login" value="开始">
+        <input type="button" class="xui-btn_start xa-btn_login" value="开始">
     </div>
 {% endblock %}
 
