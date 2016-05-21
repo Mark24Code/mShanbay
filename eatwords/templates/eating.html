@@ -1,34 +1,131 @@
 {% extends "content_base.html" %}
 {% block css %}
+    <style>
+        #card{
+            height: 500px;
+            background: gray;
+        }
+    </style>
 {% endblock %}
 
 {% block content_base %}
 背单词页面
-    <ul>
-
-
-    </ul>
+    <div id="test">FFFF</div>
+    <div id="card_handlebars_container">xxxx</div>
 
 
 {% endblock %}
 
 {% block js %}
-<script type="text/javascript">
-    $(document).ready(function () {
-        $.ajax({
-            url:'/eating/',
-            type:'get',
-            data:{
-                '_method':'get'
-            },
-            success:function (resp) {
-                console.log(">>>> Eating  start >>>");
-                console.log(resp.data)
-            },
-            error:function (resp) {
-                console.log("<<< Eating end")
-            }
+    <script type="text/javascript" src="/static/touchSwipe/jquery.touchSwipe.min.js"></script>
+    {% verbatim %}
+    <script id="card-template" type="text/x-handlebars-template">
+    <div id="card" class="xui-card">
+        <div id="word" class="xui-word">{{ word }}</div>
+        <div id="meaning" class="xui-meaning">{{ meaning }}</div>
+        {{#if synonym}}
+            <div id="" class="xui-meaning">{{ synonym }}</div>
+        {{/if}}
+    </div>
+    </script>
+    {% endverbatim %}
+    <script type="text/javascript">
+        function Cards(el_id,temple_id) {
+            this.el_id = el_id;
+            this.temple_id =temple_id;
+            this.cards_data = [];
+            this.card_data="";
+            this.next = 0;
+            this.prev = 0;
+            this.index = 0;
+        }
+
+        Cards.prototype.init = function() {
+            this.get_card_datas();
+            this.get_cur_card();
+        };
+
+        Cards.prototype.get_card_datas = function() {
+            $.ajax({
+                url: '/eating/',
+                type: 'get',
+                async:false,
+                data: {
+                    '_method': 'get'
+                },
+                success: function(resp) {
+                    cards.cards_data = resp.data.items;
+                    console.log('success');
+                    console.log(resp.data.items);
+                },
+                error: function(resp) {
+                    console.log("[CARDS] GET DATA FAIL");
+                }
+            });
+        }
+
+        Cards.prototype.get_cur_card = function(){
+            this.next = this.index+1;
+            this.prev = this.index-1;
+            this.card_data = this.cards_data[this.index];
+            console.log('cur_card>>>>>>');
+            console.log(this.index);
+            console.log(this.cards_data);
+            console.log(this.card_data);
+            this.render(this.card_data,this.el_id,this.temple_id);
+        }
+
+        Cards.prototype.get_next_card = function(){
+            this.index += 1;
+            this.next = this.index+1;
+            this.prev = this.index-1;
+            this.card_data = this.cards_data[this.index];
+            this.render(this.card_data,this.el_id,this.temple_id);
+        }
+
+        Cards.prototype.get_prev_card = function(){
+            this.index -= 1;
+            this.next = this.index+1;
+            this.prev = this.index-1;
+            this.card_data = this.cards_data[this.index];
+            this.render(this.card_data,this.el_id,this.temple_id);
+        }
+
+        Cards.prototype.render = function(card_data,el_id,temple_id) {
+            var temple = $('#'+temple_id).html();
+            var compile_temple = Handlebars.compile(temple);
+            var temple_html = compile_temple(card_data);
+            $('#'+el_id).html(temple_html);
+        };
+
+
+
+        $(document).ready(function () {
+            cards = new Cards('card_handlebars_container','card-template');
+            cards.init();
+
+            // Card_Swipes
+            $(function() {
+                //Keep track of how many swipes
+                var count=0;
+
+                //Enable swiping...
+                $("#card").swipe( {
+                    //Single swipe handler for left swipes
+                    swipeLeft:function(event, direction, distance, duration, fingerCount) {
+                        cards.get_next_card();
+                        $("#test").html('left'+count++);
+                    },
+                    swipeRight:function(event, direction, distance, duration, fingerCount) {
+                        cards.get_prev_card();
+                        $("#test").html('Right'+count++);
+                    },
+                    //Default is 75px, set to 0 for demo so any distance triggers swipe
+                    threshold:0
+                });
+            });
         });
-    });
-</script>
+
+
+    </script>
 {% endblock %}

@@ -44,7 +44,10 @@ def eating(request):
     elif request.GET.get('_method')=='get':
         #基础
         user_id = str(request.user.id)
-        user_config  = EatwordsConfig.objects.filter(user_id=user_id)[-1]#这里要处理一下边界
+        print('pPPP')
+        print(user_id)
+        user_config  = EatwordsConfig.objects.filter(user_id=user_id)[0]#这里要处理一下边界
+        print(user_config)
 
         count_id = user_config.count_id
         count = ID2COUNT[count_id]
@@ -55,7 +58,6 @@ def eating(request):
 
         db_ids = user_config.db_ids
         db_words_ids = db_ids.split(',') if db_ids else []
-
         if progress:
             index = int(db_words_ids.index(progress))
         else:
@@ -77,7 +79,7 @@ def eating(request):
                 word_id2synoym_ids[str(word.id)] = word.synonym.split(',')
             else:
                 word_id2synoym_ids[str(word.id)] = None
-        
+
         word_id2synoym = {}
         for word_id in word_id2synoym_ids:
             synoym_ids = word_id2synoym_ids[word_id]
@@ -96,6 +98,7 @@ def eating(request):
             word_id = str(word.id)
             items.append({
                 'id':word_id,
+                'word':word.word,
                 'meaning':word.meaning,
                 'is_collect':True if word_id in cur_collect_words_ids else False,
                 'synonym':word_id2synoym[word_id]
@@ -106,6 +109,8 @@ def eating(request):
             'items':items,
         }
         resp.data = data
+        print('>>>>')
+        print(items)
         return resp.get_response()
     else:
         return render_to_response('eating.html',{})
