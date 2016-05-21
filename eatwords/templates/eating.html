@@ -3,11 +3,32 @@
 {% endblock %}
 
 {% block content_base %}
-eating
+背单词页面
+    <ul>
+
+
+    </ul>
+
+
 {% endblock %}
 
 {% block js %}
 <script type="text/javascript">
-
+    $(document).ready(function () {
+        $.ajax({
+            url:'/eating/',
+            type:'get',
+            data:{
+                '_method':'get'
+            },
+            success:function (resp) {
+                console.log(">>>> Eating  start >>>");
+                console.log(resp.data)
+            },
+            error:function (resp) {
+                console.log("<<< Eating end")
+            }
+        });
+    });
 </script>
 {% endblock %}
