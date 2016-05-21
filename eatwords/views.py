@@ -8,7 +8,6 @@ from vocabulary.models import ID2BOOKNAME,ID2COUNT,BOOKNAME2TYPE,Words
 
 @login_required()
 def index(request):
-
     return render_to_response('index.html',{})
 
 @login_required()
@@ -113,7 +112,9 @@ def eating(request):
 
         resp = jsonresponse.creat_response(200)
         data = {
-            'items':items,
+            'group_index':str(progress['group_index']),
+            'count':count,
+            'items':items
         }
         resp.data = data
         return resp.get_response()

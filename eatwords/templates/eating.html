@@ -1,16 +1,68 @@
 {% extends "content_base.html" %}
 {% block css %}
     <style>
-        #card{
-            height: 500px;
-            background: gray;
-        }
+    body{
+        background: #eee;;
+    }
+    .card_container{
+        margin: 0 10px;
+    }
+    .progress_info{
+        border: 1px solid #44B78B;
+        border-radius: 2px;
+        margin-bottom: 10px;
+        background: #44B78B;
+    }
+    .progress_info .xui-plan{
+        text-align: center;
+    }
+
+    .xui-card{
+        border-radius: 2px;
+        background-color: #44B78B;
+        color: white;
+
+    }
+    .xui-card .xui-word{
+        border-radius: 2px;
+        background-color:#0C4B33;
+        padding: 1rem 2rem;
+        text-align: left;
+
+    }
+    .xui-card .xui-meaning{
+        border-radius: 2px;
+        padding: 1rem 2rem;
+        text-align: left;
+    }
+
+    .xui-card .xui-synonym{
+        background-color: #8BD2A2;
+        border-radius: 2px;
+        padding: 1rem 2rem;
+        text-align: left;
+    }
+
     </style>
 {% endblock %}
 
 {% block content_base %}
-背单词页面
-    <div id="card_handlebars_container">xxxx</div>
+<div class="card_container">
+    <div class="progress">
+      <div id="progress-bar" class="progress-bar progress-bar-success progress-bar-striped active" role="progressbar" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100">
+      </div>
+    </div>
+    <div class="progress_info">
+        <h4 class="xui-plan">
+            计划总数<span class="xa-count">0</span>
+            已完成<span class="xa-index">0</span>
+        </h4>
+    </div>
+    <div id="card_handlebars_container" class="xui-card"></div>
+    <div id="footer" class="xui-footer">
+        按钮
+    </div>
+</div>
 
 
 {% endblock %}
@@ -20,10 +72,10 @@
     {% verbatim %}
     <script id="card-template" type="text/x-handlebars-template">
     <div id="card" class="xui-card">
-        <div id="word" class="xui-word">{{ word }}</div>
-        <div id="meaning" class="xui-meaning">{{ meaning }}</div>
+        <div id="word" class="xui-word"><h2>{{ word }}</h2></div>
+        <div id="meaning" class="xui-meaning">【释义】 {{ meaning }}</div>
         {{#if synonym}}
-            <div id="" class="xui-meaning">{{ synonym }}</div>
+            <div id="synonym" class="xui-synonym">【近义词】 {{ synonym }}</div>
         {{/if}}
     </div>
     </script>
@@ -34,6 +86,8 @@
             this.temple_id =temple_id;
             this.cards_data = [];
             this.card_data="";
+            this.count = 0;
+            this.group_index = 0;
             this.index = 0;
         }
 
@@ -41,7 +95,9 @@
             this.get_card_datas();
             this.get_cur_card();
         };
-
+        Cards.prototype.get_progress = function(){
+            return;
+        }
         Cards.prototype.get_card_datas = function() {
             $.ajax({
                 url: '/eating/',
@@ -52,6 +108,9 @@
                 },
                 success: function(resp) {
                     cards.cards_data = resp.data.items;
+                    cards.count = resp.data.count;
+                    cards.group_index = resp.data.group_index;
+
                     console.log('success');
                     console.log(resp.data.items);
                 },
@@ -68,12 +127,7 @@
 
         Cards.prototype.get_next_card = function(){
             if( this.index < this.cards_data.length-1){
-                console.log('HHHHH');
-                console.log(this.index);
-                console.log(this.cards_data);
                 this.index += 1;
-                console.log('after');
-                console.log(this.cards_data[this.index]);
                 this.card_data = this.cards_data[this.index];
                 this.render(this.card_data,this.el_id,this.temple_id);
             }else {
@@ -99,30 +153,30 @@
             $('#'+el_id).html(temple_html);
         };
 
-
+        function update_prograss(cards){
+            $('.xa-index').html(parseInt(cards.index)+1);
+            var percent = ""+((parseInt(cards.index)+1)/parseInt(cards.count)*100).toFixed(1)+"%";
+            console.log('>>>>');
+            console.log(percent);
+            $('#progress-bar').css("width",percent);
+        }
 
         $(document).ready(function () {
             cards = new Cards('card_handlebars_container','card-template');
             cards.init();
+            $('.xa-count').html(cards.count);
+            $('.xa-index').html(parseInt(cards.index)+1);
 
-
-            // Card_Swipes
             $(function() {
-                //Keep track of how many swipes
-                var count=0;
-
-                //Enable swiping...
                 $("#card_handlebars_container").swipe( {
-                    //Single swipe handler for left swipes
                     swipeLeft:function(event, direction, distance, duration, fingerCount) {
-                        count += 1;
-                        console.log('左滑动'+count);
                         cards.get_next_card();
+                        update_prograss(cards);
+
                     },
                     swipeRight:function(event, direction, distance, duration, fingerCount) {
-                        count += 1;
-                        console.log('右滑动'+count);
                         cards.get_prev_card();
+                        update_prograss(cards);
                     },
                     //Default is 75px, set to 0 for demo so any distance triggers swipe
                     threshold:0
