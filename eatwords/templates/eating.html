@@ -51,6 +51,12 @@
         text-align: center;
         padding: 0.8rem 0;
     }
+    #note_modal{
+        color:#676C5E;
+    }
+    .xui-is_shared{
+        float: left;
+    }
     </style>
 {% endblock %}
 
@@ -75,11 +81,33 @@
     <div class="xui-collect">
         <span class="fa fa-star-o fa-2x col-xs-4" aria-hidden="true"></span>
     </div>
-    <div class="xui-add_note">
+    <div class="xui-add_note xa-add_note">
         <span class="fa fa-commenting-o fa-2x col-xs-4" aria-hidden="true"></span>
     </div>
 </div>
 
+<div class="modal fade" id="note_modal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">笔记</h4>
+      </div>
+      <div class="modal-body">
+        <textarea id="note_content" name="note_content" class="form-control" rows="6"></textarea>
+      </div>
+      <div class="modal-footer">
+        <div  class="checkbox xui-is_shared xa-is_shared">
+            <label>
+              <input id="is_shared" type="checkbox" checked>分享
+            </label>
+        </div>
+        <button id="btn-cancel" type="button" class="btn btn-default xa-cancel" data-dismiss="modal">取消</button>
+        <button id='btn-save' type="button" class="btn btn-primary xa-save">保存</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 {% endblock %}
 
@@ -176,11 +204,12 @@
         }
 
         $(document).ready(function () {
+            //init
             cards = new Cards('card_handlebars_container','card-template');
             cards.init();
             $('.xa-count').html(cards.count);
             $('.xa-index').html(parseInt(cards.index)+1);
-
+            //swipe
             $(function() {
                 $("#card_handlebars_container").swipe( {
                     swipeLeft:function(event, direction, distance, duration, fingerCount) {
@@ -195,6 +224,39 @@
                     //Default is 75px, set to 0 for demo so any distance triggers swipe
                     threshold:0
                 });
+            });
+
+            //footer
+            $('.xa-add_note').click(function(){
+                $('#note_modal').modal();
+            });
+            $('.xa-cancel').click(function(){
+                $('#note_content').val("");
+            });
+            $('.xa-save').click(function(){
+                var word_id = cards.cards_data[cards.index].id;
+                var note_content = $("#note_content").val();
+                var is_shared = $('#is_shared').prop("checked");
+
+                $.ajax({
+                    url: '/eating/note/api/',
+                    type: 'post',
+                    async:false,
+                    data: {
+                        '_method': 'put',
+                        'word_id':word_id,
+                        'note_content':note_content,
+                        'is_shared':is_shared
+                    },
+                    success: function(resp) {
+                        console.log('[NOTE] 创建笔记成功');
+                    },
+                    error: function(resp) {
+                        console.log("[NOTE] 创建笔记失败");
+                    }
+                });
+
+                $('.xa-cancel').click();
             });
         });
 

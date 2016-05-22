@@ -121,6 +121,42 @@ def eating(request):
     else:
         return render_to_response('eating.html',{})
 
+
+# @login_required()
+# def note(request):
+#     return render_to_response('note.html',{})
+
+@login_required()
+def note_api(request):
+    if request.POST.get('_method') == 'put':
+        user_id = str(request.user.id)
+        word_id = request.POST.get('word_id','')
+        note_content = request.POST.get('note_content','')
+        is_shared = request.POST.get('is_shared',False)
+        is_shared = True if is_shared=='true' else False
+        try:
+            word_note = WordNote.objects.filter(user_id = user_id,word_id = word_id)
+            if word_note:
+                word_note.update(
+                    user_id=user_id,
+                    word_id=word_id,
+                    note_content=note_content,
+                    is_shared=is_shared
+                )
+            else:
+                word_note = WordNote.objects.create(
+                    user_id=user_id,
+                    word_id=word_id,
+                    note_content=note_content,
+                    is_shared=is_shared
+                )
+        except:
+            get_trace.print_trace()
+        resp = jsonresponse.creat_response(200)
+        resp.data = {}
+
+        return resp.get_response()
+    return render_to_response('note.html',{})
 # #Note DB Data
 # share_notes = WordNote.objects.filter(word_id__in=today_words_ids,is_shared=True,is_used=True)
 # note_ids = [str(note.id) for note in share_notes]

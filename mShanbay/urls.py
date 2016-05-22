@@ -13,8 +13,7 @@ urlpatterns = [
     url(r'^join/$',account_views.join,name='join'),
 
     url(r'^$',eatwords_views.index, name='index'),
-    url(r'eating/',eatwords_views.eating, name='eating'),
-
+    url(r'^eating/',include('eatwords.urls')),
     url(r'^admin/', include(admin.site.urls)),
 ]
 
