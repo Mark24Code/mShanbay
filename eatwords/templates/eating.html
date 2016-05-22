@@ -43,14 +43,14 @@
         text-align: left;
     }
     .xui-footer{
-        height: 4rem;
         width: 100%;
         position: fixed;
         bottom: 0;
         background: black;
         opacity: 0.8;
+        text-align: center;
+        padding: 0.8rem 0;
     }
-
     </style>
 {% endblock %}
 
@@ -70,10 +70,14 @@
 </div>
 <div id="footer" class="xui-footer">
     <div class="xui-note_list">
-
+        <span class="fa fa-comments-o fa-2x col-xs-4" aria-hidden="true"></span>
     </div>
-    <div class="xui-collect"></div>
-    <div class="xui-add_note"></div>
+    <div class="xui-collect">
+        <span class="fa fa-star-o fa-2x col-xs-4" aria-hidden="true"></span>
+    </div>
+    <div class="xui-add_note">
+        <span class="fa fa-commenting-o fa-2x col-xs-4" aria-hidden="true"></span>
+    </div>
 </div>
 
 
