@@ -104,6 +104,16 @@ def eating_api(request):
                 word_id2synoym[word_id] = None
 
         #WordNote
+        mynotes = WordNote.objects.filter(user_id=user_id,is_used=True)
+        word_id2mynotes = {}
+        if mynotes:
+            for note in mynotes:
+                word_id2mynotes[note.word_id] = {
+                    'word_id':note.word_id,
+                    'note_content':note.note_content,
+                    'created_at':note.created_at
+                }
+
         notes = WordNote.objects.filter(user_id__in=today_words_ids,is_shared=True,is_used=True).order_by('-created_at')
         note_user_id2username = {}
         word_id2notes = {}
@@ -141,7 +151,8 @@ def eating_api(request):
                 'meaning':word.meaning,
                 'is_collect':True if word_id in cur_collect_words_ids else False,
                 'synonym':word_id2synoym[word_id],
-                'notes':notes
+                'notes':notes,
+                'mynote': word_id2notes[word_id] if word_id in word_id2mynotes else ""
             })
 
         resp = jsonresponse.creat_response(200)

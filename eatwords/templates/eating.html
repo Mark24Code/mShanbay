@@ -2,7 +2,8 @@
 {% block css %}
     <style>
     body{
-        background: #eee;;
+        background: #eee;
+        padding-bottom: 5rem;
     }
     .card_container{
         margin: 0 10px;
@@ -65,6 +66,14 @@
         border-radius: 2px;
         padding: 10px 5px;
     }
+    .xui-my_note{
+        background:#DBD6B8;
+        padding: 1rem 1rem;
+        text-align: left;
+        border-radius: 2px;
+        color:#564E4A;
+        margin-bottom: 2rem;
+    }
     </style>
 {% endblock %}
 
@@ -80,11 +89,9 @@
             已完成<span class="xa-index">0</span>
         </h4>
     </div>
-    <div id="card_handlebars_container" class="xui-card"></div>
+    <div id="card_handlebars_container" class="xui-card_container"></div>
     <div id="notes_box_collapse" class="collapse xui-notes_box_collapse">
-        <div id="notes_handlebars_container" class="xui-notes_handlebars_container">
-            尚无分享评论
-        </div>
+        <div id="notes_handlebars_container" class="xui-notes_handlebars_container"></div>
     </div>
 </div>
 <div id="footer" class="xui-footer">
@@ -135,6 +142,19 @@
             <div id="synonym" class="xui-synonym">【近义词】 {{ synonym }}</div>
         {{/if}}
     </div>
+
+    <div id="my_note_box">
+        {{#if mynote}}
+        <div id ="my_note" class="xui-my_note">
+                {{#each mynote}}
+                <div class="xui-note_content">
+                    <p>我的笔记:</p>
+                    <p>{{note_content}}</p>
+                </div>
+                {{/each}}
+        </div>
+        {{/if}}
+    </div>
     </script>
 
 
@@ -142,6 +162,7 @@
     <div id="note" class="xui-note">
 
         <div class="xui-note_list_box">
+            <p>用户共享笔记：</p>
             <ul class="xui-note_list">
                 {{#if notes}}
                     {{#each notes}}
@@ -290,6 +311,15 @@
                 var word_id = cards.cards_data[cards.index].id;
                 var note_content = $("#note_content").val();
                 var is_shared = $('#is_shared').prop("checked");
+
+                cards.cards_data[cards.index]['mynote']=[{
+                    'word_id':word_id,
+                    'note_content':note_content
+                }]
+                var my_note_html = '<div id ="my_note" class="xui-my_note"><div class="xui-note_content"><p>我的笔记:</p><p>'+note_content+'</p></div></div>';
+
+
+                $("#my_note_box").html(my_note_html);
 
                 $.ajax({
                     url: '/eating/note/api/',
