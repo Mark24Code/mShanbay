@@ -8,7 +8,7 @@
         .xui-word_book .xui-book_name,.xui-word_count .xui-count{
             text-decoration:underline;
         }
-        .xui-btn_start{
+        .xui-btn_start,.xui-btn_continue{
             height: 4rem;
             width: 80%;
             background-color: #fff;
@@ -25,11 +25,14 @@
         .xui-config{
             font-size: 3rem;
         }
+        .xui-continue{
+            color:#24D79D;
+        }
     </style>
 {% endblock %}
 
 {% block content_base %}
-
+{% if new_user %}
     <div class="xui-intro">
         <div><h3>制定自己的单词计划吧！</h3></div>
     </div>
@@ -41,7 +44,7 @@
 
         <div class="xui-count_box xa-count_box">
             <input type="hidden" name="count_id" id="countId" value="">
-            <span id="selectCount">选择每日个数</span>
+            <span id="selectCount">选择每次个数</span>
         </div>
     </div>
 
@@ -57,9 +60,18 @@
     <div class="form-group">
         <input type="button" class="xui-btn_start xa-btn_login" value="开始">
     </div>
+{% else %}
+    <div class="xui-intro">
+        <div><h3>您已经制定了计划！点击开始继续！</h3></div>
+    </div>
+    <div class="form-group">
+        <input type="button" class="xui-btn_continue xa-btn_continue" value="继续">
+    </div>
+{% endif %}
 {% endblock %}
 
 {% block js %}
+
     <script src="/static/eatwords/select_data.js"></script>
     <script src="/static/iosselect/iscroll.js"></script>
     <script src="/static/iosselect/iosSelect.js"></script>
@@ -68,46 +80,53 @@
         var bookIdDom = document.querySelector('#bookId');
         var selectBookDom = document.querySelector('#selectBook');
         var showBookDom = document.querySelector('#showBook');
-        selectBookDom.addEventListener('click', function () {
-            var bookId = selectBookDom.dataset['id'];
-            var bookName = selectBookDom.dataset['value'];
-            var bankSelect = new IosSelect(1,
-                [book_data],
-                {
-                    title: '单词书',
-                    itemHeight: 35,
-                    oneLevelId: bookId,
-                    callback: function (selectOneObj) {
-                        bookIdDom.value = selectOneObj.id;
-                        showBookDom.innerHTML = selectOneObj.value;
-                        selectBookDom.dataset['id'] = selectOneObj.id;
-                        selectBookDom.dataset['value'] = selectOneObj.value;
-                }
+        if(selectBookDom){
+            selectBookDom.addEventListener('click', function () {
+                var bookId = selectBookDom.dataset['id'];
+                var bookName = selectBookDom.dataset['value'];
+                var bankSelect = new IosSelect(1,
+                    [book_data],
+                    {
+                        title: '单词书',
+                        itemHeight: 35,
+                        oneLevelId: bookId,
+                        callback: function (selectOneObj) {
+                            bookIdDom.value = selectOneObj.id;
+                            showBookDom.innerHTML = selectOneObj.value;
+                            selectBookDom.dataset['id'] = selectOneObj.id;
+                            selectBookDom.dataset['value'] = selectOneObj.value;
+                    }
+                });
             });
-        });
+        }
 
         var countIdDom = document.querySelector('#countId');
         var selectCountDom = document.querySelector('#selectCount');
         var showCountDom = document.querySelector('#showCount');
-        selectCountDom.addEventListener('click', function () {
-            var countId = selectCountDom.dataset['id'];
-            var countName = selectCountDom.dataset['value'];
-            var bankSelect = new IosSelect(1,
-                [count_data],
-                {
-                    title: '每日个数',
-                    itemHeight: 35,
-                    oneLevelId: countId,
-                    callback: function (selectOneObj) {
-                        countIdDom.value = selectOneObj.id;
-                        showCountDom.innerHTML = selectOneObj.value;
-                        selectCountDom.dataset['id'] = selectOneObj.id;
-                        selectCountDom.dataset['value'] = selectOneObj.value;
-                }
+        if(selectCountDom){
+            selectCountDom.addEventListener('click', function () {
+                var countId = selectCountDom.dataset['id'];
+                var countName = selectCountDom.dataset['value'];
+                var bankSelect = new IosSelect(1,
+                    [count_data],
+                    {
+                        title: '每日个数',
+                        itemHeight: 35,
+                        oneLevelId: countId,
+                        callback: function (selectOneObj) {
+                            countIdDom.value = selectOneObj.id;
+                            showCountDom.innerHTML = selectOneObj.value;
+                            selectCountDom.dataset['id'] = selectOneObj.id;
+                            selectCountDom.dataset['value'] = selectOneObj.value;
+                    }
+                });
             });
+        }
+
+        //继续
+        $('.xa-btn_continue').click(function(){
+             window.location.href = '/eating/';
         });
-
-
         //开始
         $('.xa-btn_login').click(function(){
             var bookId = $('#bookId').val();
@@ -139,5 +158,6 @@
         });
 
     });
+
     </script>
 {% endblock %}

@@ -74,6 +74,9 @@
         color:#564E4A;
         margin-bottom: 2rem;
     }
+    #finished_modal{
+        color:#000;
+    }
     </style>
 {% endblock %}
 
@@ -129,6 +132,27 @@
   </div>
 </div>
 
+<div class="modal fade" id="finished_modal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">恭喜！</h4>
+      </div>
+      <div class="modal-body">
+          <div>
+              你已完成本日任务 :P
+          </div>
+      </div>
+      <div class="modal-footer">
+        <span id="btn-next" type="button" class="btn btn-danger xa-next" data-dismiss="modal">再战</span>
+<!--         <a id='btn-finished' type="button" href="/logout/" class="btn btn-default xa-finished">玩去</a> -->
+        <span id='btn-finished' type="button" class="btn btn-default xa-finished">玩去</span>
+      </div>
+    </div>
+  </div>
+</div>
+
 {% endblock %}
 
 {% block js %}
@@ -179,7 +203,7 @@
                     </li>
                     {{/each}}
                 {{else}}
-                尚无分享评论
+                尚无分享笔记
                 {{/if}}
             </ul>
         </div>
@@ -246,7 +270,7 @@
                 this.render(this.note_data,this.notes_el_id,this.notes_temple_id);
             }else{
                 this.index = this.cards_data.length -1;
-                alert("您已完成！！！");
+                $('#finished_modal').modal();
             }
         };
 
@@ -341,6 +365,56 @@
                 });
 
                 $('.xa-cancel').click();
+            });
+
+            //finished
+            $(".xa-finished").click(function(){
+                $.ajax({
+                    url: '/eating/api/',
+                    type: 'post',
+                    data: {
+                        '_method': 'finished',
+                        'group_index':cards.group_index
+                    },
+                    success: function(resp) {
+                        console.log(JSON.stringify(resp.data));
+                        var finished = resp.data.finished;
+                        if(finished==true){
+                            alert("您已完成本书全部课程!!");
+                        }
+                        window.location.href='/';
+                        console.log('[TASK] 更新任务成功');
+                    },
+                    error: function(resp) {
+                        console.log("[TASK] 更新任务失败");
+                    }
+                });
+            });
+            $(".xa-next").click(function(){
+                console.log(cards.index);
+                console.log(cards.group_index);
+
+                $.ajax({
+                    url: '/eating/api/',
+                    type: 'post',
+                    data: {
+                        '_method': 'finished',
+                        'group_index':cards.group_index
+                    },
+                    success: function(resp) {
+                        console.log(JSON.stringify(resp.data));
+                        var finished = resp.data.finished;
+                        if(finished==true){
+                            alert("您已完成本书全部课程!!");
+                            window.location.href='/';
+                        }
+                        console.log('[TASK] 更新任务成功');
+                    },
+                    error: function(resp) {
+                        console.log("[TASK] 更新任务失败");
+                    }
+                });
+
             });
         });
 

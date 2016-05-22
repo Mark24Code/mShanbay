@@ -1,5 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, render_to_response
+from django.template import RequestContext
+from django.http import HttpResponseRedirect
 from django.contrib.auth.models import User
 import json
 
@@ -9,11 +11,36 @@ from vocabulary.models import ID2BOOKNAME,ID2COUNT,BOOKNAME2TYPE,Words
 
 @login_required()
 def index(request):
-    return render_to_response('index.html',{})
+    user_id = str(request.user.id)
+    userconfig = EatwordsConfig.objects.filter(user_id=user_id)
+    new_user = True
+    if userconfig:
+        userconfig = userconfig[0]
+        book_id = userconfig.book_id
+        if book_id:
+            new_user = False
+
+    c = RequestContext(request, {
+        'new_user':new_user
+    })
+    return render_to_response('index.html',c)
+
 
 @login_required()
 def eating(request):
-    return render_to_response('eating.html',{})
+    user_id = str(request.user.id)
+    userconfig = EatwordsConfig.objects.filter(user_id=user_id)
+    if userconfig:
+        userconfig = userconfig[0]
+        book_id = userconfig.book_id
+        if book_id:
+            return render_to_response('eating.html',{})
+        else:
+            return HttpResponseRedirect("/")
+    else:
+        return HttpResponseRedirect("/")
+
+
 
 @login_required()
 def eating_api(request):
@@ -49,7 +76,7 @@ def eating_api(request):
                 user_id=user_id,
                 book_id=bookId,
                 count_id=countId,
-                progress=json.dumps({'group_index':0,'index':0}),
+                progress=json.dumps({'group_index':0}),
                 db_ids_groups = json.dumps(db_words_group)
             )
         except:
@@ -69,7 +96,6 @@ def eating_api(request):
         count_id = user_config.count_id
         count = ID2COUNT[count_id]
         progress = json.loads(user_config.progress)
-
         collect = user_config.collect
         collect_words_ids = collect.split(',') if collect else []
 
@@ -163,7 +189,39 @@ def eating_api(request):
         }
         resp.data = data
         return resp.get_response()
+    elif request.POST.get('_method')=='finished':
+        user_id = str(request.user.id)
+        group_index = request.POST.get('group_index','')
+        user_config = EatwordsConfig.objects.filter(user_id=user_id)[0]
+        finished = False
+        if user_config:
+            db_ids_groups = json.loads(user_config.db_ids_groups)
+            len_group = len(db_ids_groups)
+            if int(group_index) >= len_group-1:
+                ok_id = user_config.book_id
+                book_id = ""
+                progress = {
+                    'group_index':0
+                }
+                user_config.ok_id = ok_id
+                user_config.book_id = book_id
+                user_config.progress = json.dumps(progress)
+                user_config.save()
 
+                finished = True
+            else:
+                progress = {
+                    'group_index':int(group_index)+1
+                }
+                user_config.progress = json.dumps(progress)
+                user_config.save()
+
+        resp = jsonresponse.creat_response(200)
+        data = {
+            'finished':finished
+        }
+        resp.data = data
+        return resp.get_response()
 
 
 # @login_required()
@@ -201,17 +259,4 @@ def note_api(request):
 
         return resp.get_response()
     return render_to_response('note.html',{})
-# #Note DB Data
-# share_notes = WordNote.objects.filter(word_id__in=today_words_ids,is_shared=True,is_used=True)
-# note_ids = [str(note.id) for note in share_notes]
-# word_id2notes = {}
-# for note in share_notes:
-#     note_dict = {}
-#     note_dict['user_id'] = note.user_id
-#     note_dict['word_id'] = note.word_id
-#     note_dict['note_content'] = note.note_content
-#
-#     if note.user_id in word_id2notes:
-#         word_id2notes[note.user_id].append(note_dict)
-#     else:
-#         word_id2notes[note.user_id] = [note_dict]
+
