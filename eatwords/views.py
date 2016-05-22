@@ -1,5 +1,6 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, render_to_response
+from django.contrib.auth.models import User
 import json
 
 from core import jsonresponse,get_trace
@@ -12,6 +13,10 @@ def index(request):
 
 @login_required()
 def eating(request):
+    return render_to_response('eating.html',{})
+
+@login_required()
+def eating_api(request):
     if request.POST.get('_method')=='put':
         user_id = str(request.user.id)
         bookId = request.POST.get('bookId','')
@@ -69,8 +74,8 @@ def eating(request):
         collect_words_ids = collect.split(',') if collect else []
 
         db_ids_groups = json.loads(user_config.db_ids_groups)
-        today_words_ids = db_ids_groups[str(progress['group_index'])]
-        cur_collect_words_ids = collect_words_ids and today_words_ids
+        today_words_ids = db_ids_groups[str(progress['group_index'])] #最后推送ids
+        cur_collect_words_ids = collect_words_ids and today_words_ids #收藏ids
         #Words DB Data
         id2words = {}
         all_words = Words.objects.all()
@@ -98,16 +103,45 @@ def eating(request):
             else:
                 word_id2synoym[word_id] = None
 
+        #WordNote
+        notes = WordNote.objects.filter(user_id__in=today_words_ids,is_shared=True,is_used=True).order_by('-created_at')
+        note_user_id2username = {}
+        word_id2notes = {}
+        if notes:
+            note_user_ids = [note.user_id for note in notes]
+            note_users= User.objects.filter(id__in=note_user_ids)
+            for one_user in note_users:
+                note_user_id2username[str(one_user.id)] = one_user.username
+            for note in notes:
+                word_id = note.word_id
+                one_note = {
+                            'user_id':note.user_id,
+                            'username':note_user_id2username[note.user_id],
+                            'word_id':word_id,
+                            'note_content':note.note_content,
+                            'created_at':note.created_at.strftime('%Y-%m-%d %H:%M')
+                            }
+
+                if word_id in word_id2notes:
+                    word_id2notes[word_id].append(one_note)
+                else:
+                    word_id2notes[word_id] = [one_note]
+
+
         #组织data
         items = []
         for word in today_words:
             word_id = str(word.id)
+            notes = []
+            if word_id in word_id2notes:
+                notes = word_id2notes[word_id]
             items.append({
                 'id':word_id,
                 'word':word.word,
                 'meaning':word.meaning,
                 'is_collect':True if word_id in cur_collect_words_ids else False,
-                'synonym':word_id2synoym[word_id]
+                'synonym':word_id2synoym[word_id],
+                'notes':notes
             })
 
         resp = jsonresponse.creat_response(200)
@@ -118,8 +152,7 @@ def eating(request):
         }
         resp.data = data
         return resp.get_response()
-    else:
-        return render_to_response('eating.html',{})
+
 
 
 # @login_required()

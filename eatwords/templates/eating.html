@@ -21,6 +21,7 @@
         border-radius: 2px;
         background-color: #44B78B;
         color: white;
+        margin-bottom: 10px;
 
     }
     .xui-card .xui-word{
@@ -49,13 +50,20 @@
         background: black;
         opacity: 0.8;
         text-align: center;
-        padding: 0.8rem 0;
+        padding: 1rem 0;
     }
     #note_modal{
         color:#676C5E;
     }
     .xui-is_shared{
         float: left;
+    }
+    .xui-notes_handlebars_container{
+        background-color: #6D6F6A;
+        color:#D5D5D5;
+        text-align: left;
+        border-radius: 2px;
+        padding: 10px 5px;
     }
     </style>
 {% endblock %}
@@ -73,16 +81,21 @@
         </h4>
     </div>
     <div id="card_handlebars_container" class="xui-card"></div>
+    <div id="notes_box_collapse" class="collapse xui-notes_box_collapse">
+        <div id="notes_handlebars_container" class="xui-notes_handlebars_container">
+            尚无分享评论
+        </div>
+    </div>
 </div>
 <div id="footer" class="xui-footer">
-    <div class="xui-note_list">
-        <span class="fa fa-comments-o fa-2x col-xs-4" aria-hidden="true"></span>
+    <div class="xui-note_list_btn">
+        <span class="fa fa-quote-left fa-2x col-xs-4" aria-hidden="true" data-toggle="collapse" href="#notes_box_collapse"></span>
     </div>
-    <div class="xui-collect">
+    <div class="xui-collect_btn">
         <span class="fa fa-star-o fa-2x col-xs-4" aria-hidden="true"></span>
     </div>
-    <div class="xui-add_note xa-add_note">
-        <span class="fa fa-commenting-o fa-2x col-xs-4" aria-hidden="true"></span>
+    <div class="xui-add_note_btn xa-add_note_btn">
+        <span class="fa fa-pencil fa-2x col-xs-4" aria-hidden="true"></span>
     </div>
 </div>
 
@@ -123,12 +136,43 @@
         {{/if}}
     </div>
     </script>
+
+
+    <script id="note-template" type="text/x-handlebars-template">
+    <div id="note" class="xui-note">
+
+        <div class="xui-note_list_box">
+            <ul class="xui-note_list">
+                {{#if notes}}
+                    {{#each notes}}
+                    <li class="xui-a_note" word_id={{word_id}}>
+                        <div class="xui-user_info">
+                            <h4 user_id={{user_id}}>
+                                {{username}}
+                            </h4>
+                            <i>创建于 {{created_at}}</i>
+                        </div>
+                        <div class="xui-note_content">
+                            <p>{{note_content}}</p>
+                        </div>
+                    </li>
+                    {{/each}}
+                {{else}}
+                尚无分享评论
+                {{/if}}
+            </ul>
+        </div>
+    </div>
+    </script>
     {% endverbatim %}
     <script type="text/javascript">
-        function Cards(el_id,temple_id) {
-            this.el_id = el_id;
-            this.temple_id =temple_id;
+        function Cards(card_el_id,card_temple_id,notes_el_id,notes_temple_id) {
+            this.card_el_id = card_el_id;
+            this.card_temple_id =card_temple_id;
+            this.notes_el_id = notes_el_id;
+            this.notes_temple_id = notes_temple_id;
             this.cards_data = [];
+            this.note_data = "";
             this.card_data="";
             this.count = 0;
             this.group_index = 0;
@@ -139,12 +183,9 @@
             this.get_card_datas();
             this.get_cur_card();
         };
-        Cards.prototype.get_progress = function(){
-            return;
-        }
         Cards.prototype.get_card_datas = function() {
             $.ajax({
-                url: '/eating/',
+                url: '/eating/api/',
                 type: 'get',
                 async:false,
                 data: {
@@ -162,38 +203,50 @@
                     console.log("[CARDS] GET DATA FAIL");
                 }
             });
-        }
+        };
 
         Cards.prototype.get_cur_card = function(){
             this.card_data = this.cards_data[this.index];
-            this.render(this.card_data,this.el_id,this.temple_id);
-        }
+            this.note_data = {"notes":this.card_data['notes']};
+            //card
+            this.render(this.card_data,this.card_el_id,this.card_temple_id);
+            //notes
+            this.render(this.note_data,this.notes_el_id,this.notes_temple_id);
+        };
 
         Cards.prototype.get_next_card = function(){
             if( this.index < this.cards_data.length-1){
                 this.index += 1;
                 this.card_data = this.cards_data[this.index];
-                this.render(this.card_data,this.el_id,this.temple_id);
+                this.note_data = {"notes":this.card_data['notes']};
+                //card
+                this.render(this.card_data,this.card_el_id,this.card_temple_id);
+                //notes
+                this.render(this.note_data,this.notes_el_id,this.notes_temple_id);
             }else {
                 this.index = this.cards_data.length -1;
             }
-        }
+        };
 
         Cards.prototype.get_prev_card = function(){
             if( this.index > 0){
                 this.index -= 1;
                 this.card_data = this.cards_data[this.index];
-                this.render(this.card_data,this.el_id,this.temple_id);
+                this.note_data = {"notes":this.card_data['notes']};
+                //card
+                this.render(this.card_data,this.card_el_id,this.card_temple_id);
+                //notes
+                this.render(this.note_data,this.notes_el_id,this.notes_temple_id);
             }else {
                 this.index = 0;
             }
-        }
+        };
 
-        Cards.prototype.render = function(card_data,el_id,temple_id) {
+        Cards.prototype.render = function(data,el_id,temple_id) {
             console.log('render.....');
             var temple = $('#'+temple_id).html();
             var compile_temple = Handlebars.compile(temple);
-            var temple_html = compile_temple(card_data);
+            var temple_html = compile_temple(data);
             $('#'+el_id).html(temple_html);
         };
 
@@ -205,7 +258,7 @@
 
         $(document).ready(function () {
             //init
-            cards = new Cards('card_handlebars_container','card-template');
+            cards = new Cards('card_handlebars_container','card-template','notes_handlebars_container','note-template');
             cards.init();
             $('.xa-count').html(cards.count);
             $('.xa-index').html(parseInt(cards.index)+1);
@@ -227,7 +280,7 @@
             });
 
             //footer
-            $('.xa-add_note').click(function(){
+            $('.xa-add_note_btn').click(function(){
                 $('#note_modal').modal();
             });
             $('.xa-cancel').click(function(){
