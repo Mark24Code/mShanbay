@@ -36,9 +36,9 @@ def join(request):
         return render_to_response('join.html', {})
 
 def logout(request):
-    del request.session['user_id']
-    auth.logout(request)
-
+    if request.session.get('user_id',''):
+        del request.session['user_id']
+        auth.logout(request)
     return render_to_response('logout.html',{})
 
 def login(request):

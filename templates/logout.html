@@ -2,12 +2,32 @@
 
 {% block css %}
 <style type="text/css">
-
+    .xui-logo_box{
+        margin: 30% auto 0 auto;
+        text-align: center;
+    }
+    .xui-logo_box,.xui-logo_box img{
+        height: 100px;
+        width: 100px;
+    }
+    .xui-sth{
+        text-align: center;
+        margin:auto;
+    }
 </style>
 {% endblock %}
 
 {% block content %}
-z注销
+
+<div class="row xui-logo">
+    <div class="xui-logo_box">
+        <img src="/static/img/logo.png" alt="mShanbay">
+    </div>
+    <div class="xui-sth">
+        <h3>任务结束，去玩耍啦</h3>
+        <a href="/">回到主页</a>
+    </div>
+</div>
 {% endblock %}
 
 {% block js %}{% endblock %}

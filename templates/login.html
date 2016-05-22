@@ -1,14 +1,23 @@
 {% extends "base.html" %}
 {% block css %}
 <link rel="stylesheet" href="/static/css/login.css">
+<style type="text/css">
+    .xui-logo_box{
+        margin: 30% auto 10% auto;
+        text-align: center;
+    }
+    .xui-logo_box,.xui-logo_box img{
+        height: 100px;
+        width: 100px;
+    }
+
+</style>
 {% endblock %}
 
 {% block content %}
 <div class="container-fluid">
-    <div class="row xui-logo">
-        <div class="xui-logo_box">
-            <img src="" alt="mShanbay">
-        </div>
+    <div class="xui-logo_box">
+        <img src="/static/img/logo.png" alt="mShanbay">
     </div>
     <div class="row xui-content">
         <form class="form-horizontal">
