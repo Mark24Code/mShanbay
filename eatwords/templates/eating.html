@@ -101,8 +101,8 @@
     <div class="xui-note_list_btn">
         <span class="fa fa-quote-left fa-2x col-xs-4" aria-hidden="true" data-toggle="collapse" href="#notes_box_collapse"></span>
     </div>
-    <div class="xui-collect_btn">
-        <span class="fa fa-star-o fa-2x col-xs-4" aria-hidden="true"></span>
+    <div class="xui-collect_btn xa-collect_btn">
+        <span id="collect_btn" class="fa fa-star-o fa-2x col-xs-4" aria-hidden="true"></span>
     </div>
     <div class="xui-add_note_btn xa-add_note_btn">
         <span class="fa fa-pencil fa-2x col-xs-4" aria-hidden="true"></span>
@@ -146,7 +146,6 @@
       </div>
       <div class="modal-footer">
         <span id="btn-next" type="button" class="btn btn-danger xa-next" data-dismiss="modal">再战</span>
-<!--         <a id='btn-finished' type="button" href="/logout/" class="btn btn-default xa-finished">玩去</a> -->
         <span id='btn-finished' type="button" class="btn btn-default xa-finished">玩去</span>
       </div>
     </div>
@@ -289,11 +288,17 @@
         };
 
         Cards.prototype.render = function(data,el_id,temple_id) {
-            console.log('render.....');
+            var is_collect = data.is_collect;
             var temple = $('#'+temple_id).html();
             var compile_temple = Handlebars.compile(temple);
             var temple_html = compile_temple(data);
             $('#'+el_id).html(temple_html);
+
+            if(is_collect === true){
+                $("#collect_btn").addClass("fa-star").removeClass("fa-star-o");
+            }else if(is_collect === false){
+                $("#collect_btn").addClass("fa-star-o").removeClass("fa-star");
+            }
         };
 
         function update_prograss(cards){
@@ -326,6 +331,32 @@
             });
 
             //footer
+            $('.xa-collect_btn').click(function(){
+                var word_id = cards.cards_data[cards.index].id;
+                var is_collect = cards.cards_data[cards.index].is_collect;
+                if(is_collect===true){
+                    cards.cards_data[cards.index].is_collect = false;
+                    $("#collect_btn").addClass("fa-star-o").removeClass("fa-star");
+                }else if(is_collect===false){
+                    cards.cards_data[cards.index].is_collect = true;
+                    $("#collect_btn").addClass("fa-star").removeClass("fa-star-o");
+                }
+                $.ajax({
+                    url: '/eating/api/',
+                    type: 'post',
+                    data: {
+                        '_method': 'collect',
+                        'word_id':word_id
+                    },
+                    success: function(resp) {
+                        console.log('[WORD] 收藏成功');
+                    },
+                    error: function(resp) {
+                        console.log("[WORD] 收藏失败");
+                    }
+                });
+
+            });
             $('.xa-add_note_btn').click(function(){
                 $('#note_modal').modal();
             });
@@ -390,6 +421,7 @@
                     }
                 });
             });
+
             $(".xa-next").click(function(){
                 console.log(cards.index);
                 console.log(cards.group_index);
@@ -407,6 +439,8 @@
                         if(finished==true){
                             alert("您已完成本书全部课程!!");
                             window.location.href='/';
+                        }else{
+                            window.location.href='/eating/';
                         }
                         console.log('[TASK] 更新任务成功');
                     },

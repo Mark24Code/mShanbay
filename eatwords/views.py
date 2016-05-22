@@ -46,11 +46,11 @@ def eating(request):
 def eating_api(request):
     if request.POST.get('_method')=='put':
         user_id = str(request.user.id)
-        bookId = request.POST.get('bookId','')
-        countId = request.POST.get('countId','')
-        count = int(ID2COUNT[countId])
+        book_id = request.POST.get('bookId','')
+        count_id = request.POST.get('countId','')
+        count = int(ID2COUNT[count_id])
         group = 0
-        book_name = ID2BOOKNAME[bookId]
+        book_name = ID2BOOKNAME[book_id]
         book_type = BOOKNAME2TYPE[book_name]
 
         filter_dict = {}
@@ -71,14 +71,24 @@ def eating_api(request):
                 db_words_group[i] = group_one
                 db_words_ids = db_words_ids[:-count]
 
+            userconfig = EatwordsConfig.objects.filter(user_id=user_id)
+            if userconfig:
+                userconfig = userconfig[0]
+                userconfig.user_id = user_id
+                userconfig.book_id = book_id
+                userconfig.count_id = count_id
+                userconfig.progress = json.dumps({'group_index':0})
+                userconfig.db_ids_groups = json.dumps(db_words_group)
 
-            EatwordsConfig.objects.create(
-                user_id=user_id,
-                book_id=bookId,
-                count_id=countId,
-                progress=json.dumps({'group_index':0}),
-                db_ids_groups = json.dumps(db_words_group)
-            )
+                userconfig.save()
+            else:
+                EatwordsConfig.objects.create(
+                    user_id=user_id,
+                    book_id=book_id,
+                    count_id=count_id,
+                    progress=json.dumps({'group_index':0}),
+                    db_ids_groups = json.dumps(db_words_group)
+                )
         except:
             get_trace.print_trace()
 
@@ -92,16 +102,14 @@ def eating_api(request):
         #基础
         user_id = str(request.user.id)
         user_config  = EatwordsConfig.objects.filter(user_id=user_id)[0]#这里要处理一下边界
-
         count_id = user_config.count_id
         count = ID2COUNT[count_id]
         progress = json.loads(user_config.progress)
         collect = user_config.collect
-        collect_words_ids = collect.split(',') if collect else []
+        collect_words_ids = json.loads(collect) if collect else []
 
         db_ids_groups = json.loads(user_config.db_ids_groups)
         today_words_ids = db_ids_groups[str(progress['group_index'])] #最后推送ids
-        cur_collect_words_ids = collect_words_ids and today_words_ids #收藏ids
         #Words DB Data
         id2words = {}
         all_words = Words.objects.all()
@@ -118,17 +126,19 @@ def eating_api(request):
                 word_id2synoym_ids[str(word.id)] = None
 
         word_id2synoym = {}
-        for word_id in word_id2synoym_ids:
-            synoym_ids = word_id2synoym_ids[word_id]
-            if synoym_ids:
-                for synoym_id in synoym_ids:
-                    if word_id in word_id2synoym:
-                        word_id2synoym[word_id].append(id2words[synoym_id])
-                    else:
-                        word_id2synoym[word_id] = [id2words[synoym_id]]
-            else:
-                word_id2synoym[word_id] = None
-
+        if word_id2synoym_ids:
+            for word_id in word_id2synoym_ids:
+                synoym_ids = word_id2synoym_ids[word_id]
+                if synoym_ids:
+                    for synoym_id in synoym_ids:
+                        try:
+                            a_synonym = id2words[synoym_id]
+                        except:
+                            get_trace.print_trace()
+                        if word_id in word_id2synoym:
+                            word_id2synoym[word_id].append(a_synonym)
+                        else:
+                            word_id2synoym[word_id] = [a_synonym]
         #WordNote
         mynotes = WordNote.objects.filter(user_id=user_id,is_used=True)
         word_id2mynotes = {}
@@ -175,12 +185,11 @@ def eating_api(request):
                 'id':word_id,
                 'word':word.word,
                 'meaning':word.meaning,
-                'is_collect':True if word_id in cur_collect_words_ids else False,
+                'is_collect':True if word_id in collect_words_ids else False,
                 'synonym':word_id2synoym[word_id],
                 'notes':notes,
                 'mynote': word_id2notes[word_id] if word_id in word_id2mynotes else ""
             })
-
         resp = jsonresponse.creat_response(200)
         data = {
             'group_index':str(progress['group_index']),
@@ -189,6 +198,49 @@ def eating_api(request):
         }
         resp.data = data
         return resp.get_response()
+    elif request.POST.get('_method')=='collect':
+        user_id = str(request.user.id)
+        word_id = request.POST.get('word_id','')
+
+        userconfig = EatwordsConfig.objects.get(user_id=user_id)
+        collect = userconfig.collect
+        if collect:
+            collect = json.loads(collect)
+            if word_id not in collect:
+                collect.append(word_id)
+            elif word_id in collect:
+                del collect[collect.index(word_id)]
+        else:
+            collect = [word_id]
+        userconfig.collect = json.dumps(collect)
+        userconfig.save()
+
+
+        resp = jsonresponse.creat_response(200)
+        data = {
+        }
+        resp.data = data
+        return resp.get_response()
+    # elif request.POST.get('_method')=='un_collect':
+    #     user_id = str(request.user.id)
+    #     word_id = request.POST.get('word_id','')
+
+    #     userconfig = EatwordsConfig.objects.get(user_id=user_id)
+    #     collect = userconfig.collect
+    #     if collect:
+    #         collect = json.loads(collect)
+    #         if word_id in collect:
+    #             del collect[collect.index(word_id)]
+
+    #     userconfig.collect = json.dumps(collect)
+    #     userconfig.save()
+
+
+    #     resp = jsonresponse.creat_response(200)
+    #     data = {
+    #     }
+    #     resp.data = data
+    #     return resp.get_response()
     elif request.POST.get('_method')=='finished':
         user_id = str(request.user.id)
         group_index = request.POST.get('group_index','')
@@ -206,6 +258,7 @@ def eating_api(request):
                 user_config.ok_id = ok_id
                 user_config.book_id = book_id
                 user_config.progress = json.dumps(progress)
+                user_config.db_ids_groups = ""
                 user_config.save()
 
                 finished = True
